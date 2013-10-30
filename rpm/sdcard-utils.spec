@@ -1,11 +1,11 @@
-Name:       sdcard-utils
+Name:       sd-utils
 Summary:    SailfishOS scripts to mount/umount external sdcard.
 Version:    0.1
 Release:    1
 Group:      System/Base
 License:    MIT
 BuildArch:  noarch
-URL:        https://github.com/jvihrial/sdcard-utils/
+URL:        https://github.com/nemomobile/sd-utils/
 Source0:    %{name}-%{version}.tar.bz2
 BuildRequires:   oneshot
 Requires(post):  oneshot
