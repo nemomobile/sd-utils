@@ -34,6 +34,11 @@ ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/pre-user-se
 
 %post
 add-oneshot --now add-mmcblk1.sh
+if [ "$1" -ge 1 ]; then
+systemctl-user daemon-reload || :
+systemctl-user restart tracker-sd-indexing.path || :
+fi
+
 
 %files
 %defattr(-,root,root,-)

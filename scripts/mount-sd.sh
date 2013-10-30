@@ -1,6 +1,5 @@
 #!/bin/sh
 
-
 SDCARD=/dev/sdcard
 MNT=/mnt/extSdCard
 
@@ -20,8 +19,12 @@ then
 
 else
 	umount $MNT
+
 	if [ $? = 0 ]
 	then
+		rm -f $SDCARD
+	else
+		umount -l $MNT
 		rm -f $SDCARD
 	fi
 fi

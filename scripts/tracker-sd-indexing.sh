@@ -1,7 +1,5 @@
 #!/bin/bash
 
-echo "Triggered" >> /tmp/logi
-
 if [ -b /dev/sdcard  ]
 then
 	if [ "$(gsettings get org.freedesktop.Tracker.Miner.Files index-removable-devices)" = "false" ]
