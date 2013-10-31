@@ -1,0 +1,15 @@
+# Copyright (C) 2013 Jolla Oy
+# Contact: Pekka Lundstrom  <jarko.vihriala@jollamobile.com>
+#
+# This kicks udev to mount sdcard if that's present.
+ 
+[Unit]
+Description=Mount sdcard in boot.
+After=init-done.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/udevadm trigger --action add /devices/platform/msm_sdcc.3/mmc_host/mmc1/mmc1:a80d/block/mmcblk1/mmcblk1p1
+
+[Install]
+WantedBy=graphical.target

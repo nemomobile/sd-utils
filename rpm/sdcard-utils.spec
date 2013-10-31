@@ -29,8 +29,12 @@ cp -r rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
 mkdir -p %{buildroot}%{_oneshotdir}
 cp -r oneshot/add-mmcblk1.sh %{buildroot}%{_oneshotdir}
 mkdir -p %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants
-cp -r systemd/* %{buildroot}/usr/lib/systemd/user/
+cp -r systemd/tracker-sd* %{buildroot}/usr/lib/systemd/user/
 ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants/tracker-sd-indexing.path
+mkdir -p %{buildroot}/lib/systemd/system
+cp -r systemd/mount-sd-onboot.service %{buildroot}/lib/systemd/system/
+ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/mount-sd-onboot.service
+
 
 %post
 add-oneshot --now add-mmcblk1.sh
@@ -47,4 +51,6 @@ fi
 %{_oneshotdir}/add-mmcblk1.sh
 %{_sysconfdir}/udev/rules.d/90-mount-sd.rules
 %{_libdir}/systemd/user/*
+/lib/systemd/system/*
+
 
