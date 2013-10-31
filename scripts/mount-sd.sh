@@ -1,10 +1,10 @@
 #!/bin/bash
 
 SDCARD=/dev/sdcard
-MNT=/mnt/extSdCard
+#MNT=/media/$ID_FS_UUID
+MNT=/run/user/100000/media/sdcard
 
 if [ "$ACTION" = "add" ]; then
-	#chmod 755 /storage
 	if [ -b /dev/mmcblk1p1 ]; then
 		ln -sf /dev/mmcblk1p1 $SDCARD
 	elif [ -b /dev/mmcblk1 ]; then
@@ -12,9 +12,9 @@ if [ "$ACTION" = "add" ]; then
 	else 
 		exit $?
 	fi	
-	mount $SDCARD $MNT
+	mount $SDCARD $MNT -o uid=100000,gid=100000
 else
-	umount $MNT
+	umount $SDCARD
 
 	if [ $? = 0 ]; then
 		rm -f $SDCARD
