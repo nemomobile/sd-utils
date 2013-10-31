@@ -1,4 +1,4 @@
 #SUBSYSTEM=="block", DEVPATH=="/devices/platform/msm_sdcc.3/mmc_host/mmc1/mmc1:0007/block/mmcblk1", SYMLINK+="sd-card", OWNER="nemo", MODE="0666", RUN+="/usr/sbin/mount-sd.sh"
-SUBSYSTEM=="block", KERNEL=="mmcblk1", ACTION=="add", OWNER="nemo", MODE="0666", RUN+="/usr/sbin/mount-sd.sh"
-SUBSYSTEM=="block", KERNEL=="mmcblk1", ACTION=="remove", RUN+="/usr/sbin/mount-sd.sh"
+SUBSYSTEM=="block", KERNEL=="mmcblk1*", ACTION=="add", OWNER="nemo", MODE="0666", RUN+="/usr/sbin/mount-sd.sh"
+SUBSYSTEM=="block", KERNEL=="mmcblk1*", ACTION=="remove", RUN+="/usr/sbin/mount-sd.sh"
 
