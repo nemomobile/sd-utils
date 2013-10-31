@@ -1,7 +1,6 @@
 #!/bin/bash
 
 SDCARD=/dev/sdcard
-#MNT=/media/$ID_FS_UUID
 MNT=/run/user/100000/media/sdcard
 
 if [ "$ACTION" = "add" ]; then
@@ -12,6 +11,7 @@ if [ "$ACTION" = "add" ]; then
 	else 
 		exit $?
 	fi	
+	su nemo -c "mkdir -p $MNT"
 	mount $SDCARD $MNT -o uid=100000,gid=100000
 else
 	umount $SDCARD
