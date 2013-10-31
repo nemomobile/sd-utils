@@ -1,7 +1,10 @@
 #!/bin/bash
 
 SDCARD=/dev/sdcard
-MNT=/run/user/100000/media/sdcard
+DEF_UID=$(grep "^UID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
+DEF_GID=$(grep "^GID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
+DEVICEUSER=$(getent passwd $DEF_UID | sed 's/:.*//')
+MNT=/run/user/$DEF_UID/media/sdcard
 
 if [ "$ACTION" = "add" ]; then
 	if [ -b /dev/mmcblk1p1 ]; then
@@ -11,8 +14,8 @@ if [ "$ACTION" = "add" ]; then
 	else 
 		exit $?
 	fi	
-	su nemo -c "mkdir -p $MNT"
-	mount $SDCARD $MNT -o uid=100000,gid=100000
+	su $DEVICEUSER -c "mkdir -p $MNT"
+	mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
 else
 	umount $SDCARD
 
