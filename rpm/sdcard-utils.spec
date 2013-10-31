@@ -7,8 +7,6 @@ License:    MIT
 BuildArch:  noarch
 URL:        https://github.com/nemomobile/sd-utils/
 Source0:    %{name}-%{version}.tar.bz2
-BuildRequires:   oneshot
-Requires(post):  oneshot
 
 %description
 %{summary}
@@ -26,8 +24,6 @@ mkdir -p %{buildroot}%{_bindir}
 cp -r scripts/tracker-sd-indexing.sh %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
 cp -r rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
-mkdir -p %{buildroot}%{_oneshotdir}
-cp -r oneshot/add-mmcblk1.sh %{buildroot}%{_oneshotdir}
 mkdir -p %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants
 cp -r systemd/tracker-sd* %{buildroot}/usr/lib/systemd/user/
 ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants/tracker-sd-indexing.path
@@ -37,7 +33,6 @@ ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/graphical.targ
 
 
 %post
-add-oneshot --now add-mmcblk1.sh
 if [ "$1" -ge 1 ]; then
 systemctl-user daemon-reload || :
 systemctl-user restart tracker-sd-indexing.path || :
@@ -48,7 +43,6 @@ fi
 %defattr(-,root,root,-)
 %{_sbindir}/mount-sd.sh
 %{_bindir}/tracker-sd-indexing.sh
-%{_oneshotdir}/add-mmcblk1.sh
 %{_sysconfdir}/udev/rules.d/90-mount-sd.rules
 %{_libdir}/systemd/user/*
 /lib/systemd/system/*
