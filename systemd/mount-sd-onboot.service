@@ -1,5 +1,5 @@
 # Copyright (C) 2013 Jolla Oy
-# Contact: Pekka Lundstrom  <jarko.vihriala@jollamobile.com>
+# Contact: Jarko Vihriälä  <jarko.vihriala@jollamobile.com>
 #
 # This kicks udev to mount sdcard if that's present.
  
