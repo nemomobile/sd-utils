@@ -1,10 +1,12 @@
 #!/bin/bash
 
 SDCARD=/dev/sdcard
-MNT=/mnt/extSdCard
+DEF_UID=$(grep "^UID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
+DEF_GID=$(grep "^GID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
+DEVICEUSER=$(getent passwd $DEF_UID | sed 's/:.*//')
+MNT=/run/user/$DEF_UID/media/sdcard
 
 if [ "$ACTION" = "add" ]; then
-	chmod 755 /storage
 	if [ -b /dev/mmcblk1p1 ]; then
 		ln -sf /dev/mmcblk1p1 $SDCARD
 	elif [ -b /dev/mmcblk1 ]; then
@@ -12,9 +14,10 @@ if [ "$ACTION" = "add" ]; then
 	else 
 		exit $?
 	fi	
-	mount $SDCARD $MNT
+	su $DEVICEUSER -c "mkdir -p $MNT"
+	mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
 else
-	umount $MNT
+	umount $SDCARD
 
 	if [ $? = 0 ]; then
 		rm -f $SDCARD
