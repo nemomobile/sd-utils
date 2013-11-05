@@ -7,6 +7,8 @@ License:    MIT
 BuildArch:  noarch
 URL:        https://github.com/nemomobile/sd-utils/
 Source0:    %{name}-%{version}.tar.bz2
+BuildRequires:   oneshot
+Requires(post):  oneshot
 
 %description
 %{summary}
@@ -30,6 +32,9 @@ ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/pre-user-se
 mkdir -p %{buildroot}/lib/systemd/system/graphical.target.wants
 cp -r systemd/mount-sd-onboot.service %{buildroot}/lib/systemd/system/
 ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/graphical.target.wants/mount-sd-onboot.service
+mkdir -p mkdir -p %{buildroot}%{_oneshotdir}
+cp -r scripts/setup-sd-indexing.sh %{buildroot}%{_oneshotdir}
+ 
 
 
 %post
@@ -38,6 +43,7 @@ systemctl-user daemon-reload || :
 systemctl-user restart tracker-sd-indexing.path || :
 fi
 
+add-oneshot --user --now setup-sd-indexing.sh
 
 %files
 %defattr(-,root,root,-)
@@ -45,6 +51,7 @@ fi
 %{_bindir}/tracker-sd-indexing.sh
 %{_sysconfdir}/udev/rules.d/90-mount-sd.rules
 %{_libdir}/systemd/user/*
+%{_oneshotdir}/setup-sd-indexing.sh
 /lib/systemd/system/*
 
 
