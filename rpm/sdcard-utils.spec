@@ -29,9 +29,9 @@ cp -r rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
 mkdir -p %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants
 cp -r systemd/tracker-sd* %{buildroot}/usr/lib/systemd/user/
 ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants/tracker-sd-indexing.path
-mkdir -p %{buildroot}/lib/systemd/system/graphical.target.wants
-cp -r systemd/mount-sd-onboot.service %{buildroot}/lib/systemd/system/
-ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/graphical.target.wants/mount-sd-onboot.service
+#mkdir -p %{buildroot}/lib/systemd/system/graphical.target.wants
+#cp -r systemd/mount-sd-onboot.service %{buildroot}/lib/systemd/system/
+#ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/graphical.target.wants/mount-sd-onboot.service
 mkdir -p mkdir -p %{buildroot}%{_oneshotdir}
 cp -r scripts/setup-sd-indexing.sh %{buildroot}%{_oneshotdir}
  
@@ -52,6 +52,6 @@ add-oneshot --user --now setup-sd-indexing.sh
 %{_sysconfdir}/udev/rules.d/90-mount-sd.rules
 %{_libdir}/systemd/user/*
 %{_oneshotdir}/setup-sd-indexing.sh
-/lib/systemd/system/*
+#/lib/systemd/system/*
 
 
