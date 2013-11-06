@@ -9,7 +9,8 @@ After=init-done.service
 
 [Service]
 Type=oneshot
-ExecStart=/usr/sbin/udevadm trigger --action add /devices/platform/msm_sdcc.3/mmc_host/mmc1/mmc1:a80d/block/mmcblk1/mmcblk1p1
+Environment=ACTION=add
+ExecStart=/usr/sbin/mount-sd.sh
 
 [Install]
 WantedBy=graphical.target
