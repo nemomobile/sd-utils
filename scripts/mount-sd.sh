@@ -16,10 +16,6 @@ if [ "$ACTION" = "add" ]; then
 	fi	
 	su $DEVICEUSER -c "mkdir -p $MNT"
 	mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
-	# until the udev subsystem is more robust, this is the way to get indexing started in boot.
-	sync
-	systemctl-user restart tracker-sd-indexing.service
-
 else
 	umount $SDCARD
 
