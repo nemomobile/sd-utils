@@ -1,0 +1,11 @@
+[Unit]
+Description=Tracker SDCard indexer toggle
+Requires=dbus.socket
+After=init-done.service
+
+[Service]
+ExecStart=/usr/bin/tracker-sd-indexing.sh
+
+[Install]
+WantedBy=pre-user-session.target
+
