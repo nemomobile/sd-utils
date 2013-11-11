@@ -5,6 +5,4 @@ Requires=dbus.socket
 [Service]
 ExecStart=/usr/bin/tracker-sd-indexing.sh
 
-[Install]
-WantedBy=pre-user-session.target
 

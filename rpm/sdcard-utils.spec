@@ -30,9 +30,9 @@ cp -r scripts/tracker-sd-indexing.sh %{buildroot}%{_bindir}
 mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
 cp -r rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
 # user-side: tracker setup
-mkdir -p %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants
+mkdir -p %{buildroot}/usr/lib/systemd/user/user-session.target.wants
 cp -r systemd/tracker-sd* %{buildroot}/usr/lib/systemd/user/
-ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants/tracker-sd-indexing.path
+ln -sf ../tracker-sd-indexing.path %{buildroot}/usr/lib/systemd/user/user-session.target.wants/tracker-sd-indexing.path
 # system side: mount sd in boot if it exists
 mkdir -p %{buildroot}/lib/systemd/system/graphical.target.wants
 cp -r systemd/mount-sd-onboot.service %{buildroot}/lib/systemd/system/
@@ -41,8 +41,10 @@ ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/graphical.targ
 mkdir -p mkdir -p %{buildroot}%{_oneshotdir}
 cp -r scripts/setup-sd-indexing.sh %{buildroot}%{_oneshotdir}
 # user-side start indexing boot
+mkdir -p /usr/lib/systemd/user/post-user-session.target.wants
 cp -r systemd/start-sd-indexing-onboot.service %{buildroot}/usr/lib/systemd/user/
-ln -sf ../start-sd-indexing-onboot.service %{buildroot}/usr/lib/systemd/user/pre-user-session.target.wants/start-sd-indexing-onboot.service
+ln -sf ../start-sd-indexing-onboot.service %{buildroot}/usr/lib/systemd/user/post-user-session.target.wants/start-sd-indexing-onboot.service
+
  
 
 
