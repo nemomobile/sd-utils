@@ -1,11 +1,11 @@
 [Unit]
-Description=Tracker SDCard indexer toggle
+Description=start sdcard indexing in boot if card is present.
 Requires=dbus.socket
-After=init-done.service
+After=user-session.target tracker-miner-fs.service
 
 [Service]
 ExecStart=/usr/bin/tracker-sd-indexing.sh
 
 [Install]
-WantedBy=pre-user-session.target
+WantedBy=post-session.target
 

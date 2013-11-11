@@ -1,9 +1,9 @@
 [Unit]
 Description=File watcher to run tracker-sd-indexing.
-Before=statefs.service
+After=pre-user-session.target
 
 [Path]
 PathChanged=/dev/sdcard
 
 [Install]
-WantedBy=pre-user-session.target
+WantedBy=user-session.target
