@@ -41,7 +41,7 @@ ln -sf ../mount-sd-onboot.service %{buildroot}/lib/systemd/system/graphical.targ
 mkdir -p mkdir -p %{buildroot}%{_oneshotdir}
 cp -r scripts/setup-sd-indexing.sh %{buildroot}%{_oneshotdir}
 # user-side start indexing boot
-mkdir -p /usr/lib/systemd/user/post-user-session.target.wants
+mkdir -p %{buildroot}/usr/lib/systemd/user/post-user-session.target.wants
 cp -r systemd/start-sd-indexing-onboot.service %{buildroot}/usr/lib/systemd/user/
 ln -sf ../start-sd-indexing-onboot.service %{buildroot}/usr/lib/systemd/user/post-user-session.target.wants/start-sd-indexing-onboot.service
 
