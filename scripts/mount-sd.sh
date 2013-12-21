@@ -21,7 +21,7 @@ if [ "$ACTION" = "add" ]; then
 			;;
 		*)
 			mount $SDCARD $MNT
-			chown $DEVICEUSER: $MNT
+			chown $DEF_UID:$DEF_GID $MNT
 			;;
 	esac
 else
