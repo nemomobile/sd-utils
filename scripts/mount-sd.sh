@@ -20,8 +20,10 @@ if [ "$ACTION" = "add" ]; then
 			mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
 			;;
 		*)
-			mount $SDCARD $MNT
-			chown $DEF_UID:$DEF_GID $MNT
+			if [ ! -z "${ID_FS_TYPE}" ]; then
+				mount $SDCARD $MNT
+				chown $DEF_UID:$DEF_GID $MNT
+			fi
 			;;
 	esac
 else
