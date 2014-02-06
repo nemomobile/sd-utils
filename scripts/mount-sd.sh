@@ -11,17 +11,17 @@ if [ "$ACTION" = "add" ]; then
 		ln -sf /dev/mmcblk1p1 $SDCARD
 	elif [ -b /dev/mmcblk1 ]; then
 		ln -sf /dev/mmcblk1 $SDCARD
-	else 
+	else
 		exit $?
-	fi	
+	fi
 	su $DEVICEUSER -c "mkdir -p $MNT"
 	case "${ID_FS_TYPE}" in
 		vfat|ntfs|exfat)
-			mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
+			mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID,sync
 			;;
 		*)
 			if [ ! -z "${ID_FS_TYPE}" ]; then
-				mount $SDCARD $MNT
+				mount $SDCARD $MNT -o sync
 				chown $DEF_UID:$DEF_GID $MNT
 			fi
 			;;
