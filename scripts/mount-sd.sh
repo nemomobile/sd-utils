@@ -15,7 +15,17 @@ if [ "$ACTION" = "add" ]; then
 		exit $?
 	fi	
 	su $DEVICEUSER -c "mkdir -p $MNT"
-	mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
+	case "${ID_FS_TYPE}" in
+		vfat|ntfs|exfat)
+			mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID
+			;;
+		*)
+			if [ ! -z "${ID_FS_TYPE}" ]; then
+				mount $SDCARD $MNT
+				chown $DEF_UID:$DEF_GID $MNT
+			fi
+			;;
+	esac
 else
 	umount $SDCARD
 
