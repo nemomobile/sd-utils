@@ -1,39 +1,44 @@
 #!/bin/bash
 
-SDCARD=/dev/sdcard
+# The only case where this script would fail is:
+# mkfs.vfat /dev/mmcblk1 then repartitioning to create an empty ext2 partition
+
 DEF_UID=$(grep "^UID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
 DEF_GID=$(grep "^GID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
 DEVICEUSER=$(getent passwd $DEF_UID | sed 's/:.*//')
 MNT=/run/user/$DEF_UID/media/sdcard
 
+if [ -z "${ACTION}" ] || [ -z "${DEVNAME}" ] || [ -z "${ID_FS_UUID}" ] || [ -z "${ID_FS_TYPE}" ]; then
+	exit 1
+fi
+
 if [ "$ACTION" = "add" ]; then
-	if [ -b /dev/mmcblk1p1 ]; then
-		ln -sf /dev/mmcblk1p1 $SDCARD
-	elif [ -b /dev/mmcblk1 ]; then
-		ln -sf /dev/mmcblk1 $SDCARD
-	else
-		exit $?
-	fi
-	su $DEVICEUSER -c "mkdir -p $MNT"
+	su $DEVICEUSER -c "mkdir -p $MNT/${ID_FS_UUID}"
 	case "${ID_FS_TYPE}" in
 		vfat|ntfs|exfat)
-			mount $SDCARD $MNT -o uid=$DEF_UID,gid=$DEF_GID,sync
+			mount ${DEVNAME} $MNT/${ID_FS_UUID} -o uid=$DEF_UID,gid=$DEF_GID,sync
+			if [ $? != 0 ]; then
+				/bin/rmdir $MNT/${ID_FS_UUID}
+			fi
+
 			;;
 		*)
-			if [ ! -z "${ID_FS_TYPE}" ]; then
-				mount $SDCARD $MNT -o sync
-				chown $DEF_UID:$DEF_GID $MNT
+			mount ${DEVNAME} $MNT/${ID_FS_UUID} -o sync
+			if [ $? != 0 ]; then
+				/bin/rmdir $MNT/${ID_FS_UUID}
 			fi
+
+			chown $DEF_UID:$DEF_GID $MNT
 			;;
 	esac
 else
-	umount $SDCARD
+	DIR=$(mount | grep -w ${DEVNAME} | cut -d \  -f 3)
+	umount $DIR
 
-	if [ $? = 0 ]; then
-		rm -f $SDCARD
-	else
-		umount -l $MNT
-		rm -f $SDCARD
+	if [ $? != 0 ]; then
+		umount -l $DIR
 	fi
+
+	/bin/rmdir $DIR
 fi
 
