@@ -18,10 +18,10 @@ if [ "$ACTION" = "add" ]; then
 
     case "${ID_FS_TYPE}" in
 	vfat|ntfs|exfat)
-	    mount ${DEVNAME} $MNT/${ID_FS_UUID} -o uid=$DEF_UID,gid=$DEF_GID,sync || /bin/rmdir $MNT/${ID_FS_UUID}
+	    mount ${DEVNAME} $MNT/${ID_FS_UUID} -o uid=$DEF_UID,gid=$DEF_GID || /bin/rmdir $MNT/${ID_FS_UUID}
 	    ;;
 	*)
-	    mount ${DEVNAME} $MNT/${ID_FS_UUID} -o sync || /bin/rmdir $MNT/${ID_FS_UUID}
+	    mount ${DEVNAME} $MNT/${ID_FS_UUID} || /bin/rmdir $MNT/${ID_FS_UUID}
 	    ;;
     esac
 else
