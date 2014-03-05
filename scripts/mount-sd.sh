@@ -20,6 +20,7 @@ if [ "$ACTION" = "add" ]; then
 	vfat|exfat)
 	    mount ${DEVNAME} $MNT/${ID_FS_UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${ID_FS_UUID}
 	    ;;
+	# NTFS support has not been tested but it's being left to please the ego of an engineer!
 	ntfs)
 	    mount ${DEVNAME} $MNT/${ID_FS_UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8 || /bin/rmdir $MNT/${ID_FS_UUID}
 	    ;;
