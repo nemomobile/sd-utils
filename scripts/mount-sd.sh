@@ -54,7 +54,6 @@ if [ "$ACTION" = "add" ]; then
 	    ;;
     esac
     test -d $MNT/${UUID} && touch $MNT/${UUID}
-    test -d $MNT/${UUID} && systemctl-user restart tracker-miner-fs.service
     systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} at $MNT/${UUID}"
 
 else
