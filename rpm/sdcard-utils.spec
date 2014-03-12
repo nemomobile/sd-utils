@@ -21,16 +21,16 @@ Requires(post):  oneshot
 %install
 # mounting script
 mkdir -p %{buildroot}%{_sbindir}
-cp -r scripts/mount-sd.sh %{buildroot}%{_sbindir}
+cp scripts/mount-sd.sh %{buildroot}%{_sbindir}
 # systemd service install
 mkdir -p %{buildroot}%{_sysconfdir}/systemd/system
-cp -r scripts/mount-sd@.service %{buildroot}%{_sysconfdir}/systemd/system/
+cp scripts/mount-sd@.service %{buildroot}%{_sysconfdir}/systemd/system/
 # udev rules for mmcblk1*
 mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
-cp -r rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
+cp rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
 # oneshot run in install
-mkdir -p mkdir -p %{buildroot}%{_oneshotdir}
-cp -r scripts/tracker-sd-indexing.sh %{buildroot}%{_oneshotdir}
+mkdir -p %{buildroot}%{_oneshotdir}
+cp scripts/tracker-sd-indexing.sh %{buildroot}%{_oneshotdir}
 
 %post
 add-oneshot --user --now tracker-sd-indexing.sh
