@@ -33,7 +33,7 @@ mkdir -p %{buildroot}%{_oneshotdir}
 cp scripts/tracker-sd-indexing.sh %{buildroot}%{_oneshotdir}
 
 %post
-add-oneshot --user --now tracker-sd-indexing.sh
+add-oneshot --user tracker-sd-indexing.sh
 
 %files
 %defattr(-,root,root,-)
