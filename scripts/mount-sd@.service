@@ -1,0 +1,10 @@
+[Unit]
+Description=Handle sdcard
+After=init-done.service dev-%i.device
+BindsTo=dev-%i.device
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/sbin/mount-sd.sh add %i
+ExecStop=/usr/sbin/mount-sd.sh remove %i
