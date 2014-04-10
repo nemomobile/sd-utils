@@ -1,5 +1,7 @@
 #!/bin/bash
 set -e
+[ "$MIC_RUN" = "" ] || exit 1
+
 gsettings set org.freedesktop.Tracker.Miner.Files index-removable-devices true
 gsettings set org.freedesktop.Tracker.Miner.Files crawling-interval 0
 gsettings set org.freedesktop.Tracker.Miner.Files enable-writeback false
