@@ -18,10 +18,17 @@ fi
 systemd-cat -t mount-sd /bin/echo "Called to ${ACTION} ${DEVNAME}"
 
 if [ "$ACTION" = "add" ]; then
+
     eval "$(/sbin/blkid -c /dev/null -o export /dev/$2)"
 
     if [ -z "${UUID}" ] || [ -z "${TYPE}" ]; then
         exit 1
+    fi
+
+    DIR=$(grep -w ${DEVNAME} /proc/mounts | cut -d \  -f 2)
+    if [ -n "$DIR" ]; then
+        systemd-cat -t mount-sd /bin/echo "${DEVNAME} already mounted on ${DIR}, ignoring"
+        exit 0
     fi
 
     # This hack is here to delay mounting the sdcard until tracker is ready
@@ -57,8 +64,12 @@ if [ "$ACTION" = "add" ]; then
     systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} at $MNT/${UUID}"
 
 else
-    DIR=$(mount | grep -w ${DEVNAME} | cut -d \  -f 3)
+    DIR=$(grep -w ${DEVNAME} /proc/mounts | cut -d \  -f 2)
     if [ -n "${DIR}" ] ; then
+        if [ "${DIR##$MNT}" = "${DIR}" ]; then
+            systemd-cat -t mount-sd /bin/echo "${DEVNAME} mountpoint ${DIR} is not under ${MNT}, ignoring"
+            exit 0
+        fi
         umount $DIR || umount -l $DIR
         systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} at ${DIR}"
     fi
