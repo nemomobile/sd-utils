@@ -7,6 +7,9 @@ License:    MIT
 BuildArch:  noarch
 URL:        https://github.com/nemomobile/sd-utils/
 Source0:    %{name}-%{version}.tar.gz
+BuildRequires:  systemd
+Requires:   systemd
+Requires:   tracker
 
 %description
 %{summary}
@@ -21,14 +24,14 @@ Source0:    %{name}-%{version}.tar.gz
 mkdir -p %{buildroot}%{_sbindir}
 cp scripts/mount-sd.sh %{buildroot}%{_sbindir}
 # systemd service install
-mkdir -p %{buildroot}%{_sysconfdir}/systemd/system
-cp scripts/mount-sd@.service %{buildroot}%{_sysconfdir}/systemd/system/
+mkdir -p %{buildroot}%{_unitdir}
+cp scripts/mount-sd@.service %{buildroot}%{_unitdir}
 # udev rules for mmcblk1*
-mkdir -p %{buildroot}%{_sysconfdir}/udev/rules.d
-cp rules/90-mount-sd.rules %{buildroot}%{_sysconfdir}/udev/rules.d/
+mkdir -p %{buildroot}%{_udevrulesdir}
+cp rules/90-mount-sd.rules %{buildroot}%{_udevrulesdir}
 
 %files
 %defattr(-,root,root,-)
 %{_sbindir}/mount-sd.sh
-%{_sysconfdir}/systemd/system/mount-sd@.service
-%{_sysconfdir}/udev/rules.d/90-mount-sd.rules
+%{_unitdir}/mount-sd@.service
+%{_udevrulesdir}/90-mount-sd.rules
