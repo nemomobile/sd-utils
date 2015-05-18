@@ -58,6 +58,8 @@ if [ "$ACTION" = "add" ]; then
 	    ;;
 	*)
 	    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
+	    # Ensure the root dir of any linuxy SD is owned by the user
+	    chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
 	    ;;
     esac
     test -d $MNT/${UUID} && touch $MNT/${UUID}
