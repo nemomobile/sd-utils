@@ -15,7 +15,11 @@ if [ -z "${ACTION}" ] || [ -z "${DEVNAME}" ]; then
     exit 1
 fi
 
-systemd-cat -t mount-sd /bin/echo "Called to ${ACTION} ${DEVNAME}"
+log () {
+    systemd-cat -t mount-sd /bin/echo $@
+}
+
+log "Called to ${ACTION} ${DEVNAME}"
 
 if [ "$ACTION" = "add" ]; then
 
@@ -25,9 +29,11 @@ if [ "$ACTION" = "add" ]; then
         exit 1
     fi
 
+    TARGET=$MNT/${UUID}
+
     DIR=$(grep -w ${DEVNAME} /proc/mounts | cut -d \  -f 2)
     if [ -n "$DIR" ]; then
-        systemd-cat -t mount-sd /bin/echo "${DEVNAME} already mounted on ${DIR}, ignoring"
+        log "${DEVNAME} already mounted on ${DIR}, ignoring"
         exit 0
     fi
 
@@ -39,39 +45,39 @@ if [ "$ACTION" = "add" ]; then
         MINER_STATUS="$(dbus-send --type=method_call --print-reply --session --dest=org.freedesktop.Tracker1.Miner.Files /org/freedesktop/Tracker1/Miner/Files org.freedesktop.Tracker1.Miner.GetStatus | grep -o 'Idle')"
         STORE_STATUS="$(dbus-send --type=method_call --print-reply --session --dest=org.freedesktop.Tracker1 /org/freedesktop/Tracker1/Status org.freedesktop.Tracker1.Status.GetStatus | grep -o 'Idle')"
         test "$MINER_STATUS" = "Idle" -a "$STORE_STATUS" = "Idle" && break
-        systemd-cat -t mount-sd /bin/echo "Waiting $count seconds for tracker"
+        log "Waiting $count seconds for tracker"
         sleep $count ; 
         count=$(( count + count ))
     done
 
-    test -d $MNT/${UUID} || mkdir -p $MNT/${UUID}
-    chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
-    touch $MNT/${UUID}
+    test -d ${TARGET} || mkdir -p ${TARGET}
+    chown $DEF_UID:$DEF_GID $MNT ${TARGET}
+    touch ${TARGET}
 
     case "${TYPE}" in
 	vfat|exfat)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${UUID}
+	    mount ${DEVNAME} ${TARGET} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir ${TARGET}
 	    ;;
 	# NTFS support has not been tested but it's being left to please the ego of an engineer!
 	ntfs)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8 || /bin/rmdir $MNT/${UUID}
+	    mount ${DEVNAME} ${TARGET} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8 || /bin/rmdir ${TARGET}
 	    ;;
 	*)
-	    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
+	    mount ${DEVNAME} ${TARGET} -o $MOUNT_OPTS || /bin/rmdir ${TARGET}
 	    ;;
     esac
-    test -d $MNT/${UUID} && touch $MNT/${UUID}
-    systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} at $MNT/${UUID}"
+    test -d ${TARGET} && touch ${TARGET}
+    log "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} at ${TARGET}"
 
 else
     DIR=$(grep -w ${DEVNAME} /proc/mounts | cut -d \  -f 2)
     if [ -n "${DIR}" ] ; then
         if [ "${DIR##$MNT}" = "${DIR}" ]; then
-            systemd-cat -t mount-sd /bin/echo "${DEVNAME} mountpoint ${DIR} is not under ${MNT}, ignoring"
+            log "${DEVNAME} mountpoint ${DIR} is not under ${MNT}, ignoring"
             exit 0
         fi
         umount $DIR || umount -l $DIR
-        systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} at ${DIR}"
+        log "Finished ${ACTION}ing ${DEVNAME} at ${DIR}"
     fi
 fi
 
