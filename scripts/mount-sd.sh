@@ -33,7 +33,6 @@ if [ "$ACTION" = "add" ]; then
 
     test -d $MNT/${UUID} || mkdir -p $MNT/${UUID}
     chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
-    touch $MNT/${UUID}
 
     case "${TYPE}" in
 	vfat|exfat)
