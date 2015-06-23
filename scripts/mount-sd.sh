@@ -37,16 +37,14 @@ if [ "$ACTION" = "add" ]; then
 
     case "${TYPE}" in
 	vfat|exfat)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${UUID}
+	    MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8,flush,discard"
 	    ;;
 	# NTFS support has not been tested but it's being left to please the ego of an engineer!
 	ntfs)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8 || /bin/rmdir $MNT/${UUID}
-	    ;;
-	*)
-	    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
+	    MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8"
 	    ;;
     esac
+    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
 
     # This hack is here to delay indexing till the tracker has started.
     export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$DEF_UID/dbus/user_bus_socket
