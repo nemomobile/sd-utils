@@ -43,6 +43,10 @@ if [ "$ACTION" = "add" ]; then
 	ntfs)
 	    MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8"
 	    ;;
+	# ext and btrfs are both able to handly TRIM. Add more to the list if needed.
+        ext4|btrfs)
+            MOUNT_OPTS+=",discard"
+            ;;
     esac
     mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
 
