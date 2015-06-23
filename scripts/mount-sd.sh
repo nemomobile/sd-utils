@@ -31,19 +31,6 @@ if [ "$ACTION" = "add" ]; then
         exit 0
     fi
 
-    # This hack is here to delay mounting the sdcard until tracker is ready
-    export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$DEF_UID/dbus/user_bus_socket
-    count=1
-    while true; do 
-        test $count -ge 64 && break
-        MINER_STATUS="$(dbus-send --type=method_call --print-reply --session --dest=org.freedesktop.Tracker1.Miner.Files /org/freedesktop/Tracker1/Miner/Files org.freedesktop.Tracker1.Miner.GetStatus | grep -o 'Idle')"
-        STORE_STATUS="$(dbus-send --type=method_call --print-reply --session --dest=org.freedesktop.Tracker1 /org/freedesktop/Tracker1/Status org.freedesktop.Tracker1.Status.GetStatus | grep -o 'Idle')"
-        test "$MINER_STATUS" = "Idle" -a "$STORE_STATUS" = "Idle" && break
-        systemd-cat -t mount-sd /bin/echo "Waiting $count seconds for tracker"
-        sleep $count ; 
-        count=$(( count + count ))
-    done
-
     test -d $MNT/${UUID} || mkdir -p $MNT/${UUID}
     chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
     touch $MNT/${UUID}
@@ -60,7 +47,21 @@ if [ "$ACTION" = "add" ]; then
 	    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
 	    ;;
     esac
+
+    # This hack is here to delay indexing till the tracker has started.
+    export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$DEF_UID/dbus/user_bus_socket
+    count=1
+    while true; do 
+        test $count -ge 64 && break
+        MINER_STATUS="$(dbus-send --type=method_call --print-reply --session --dest=org.freedesktop.Tracker1.Miner.Files /org/freedesktop/Tracker1/Miner/Files org.freedesktop.Tracker1.Miner.GetStatus | grep -o 'Idle')"
+        STORE_STATUS="$(dbus-send --type=method_call --print-reply --session --dest=org.freedesktop.Tracker1 /org/freedesktop/Tracker1/Status org.freedesktop.Tracker1.Status.GetStatus | grep -o 'Idle')"
+        test "$MINER_STATUS" = "Idle" -a "$STORE_STATUS" = "Idle" && break
+        systemd-cat -t mount-sd /bin/echo "Waiting $count seconds for tracker"
+        sleep $count ; 
+        count=$(( count + count ))
+    done
     test -d $MNT/${UUID} && touch $MNT/${UUID}
+
     systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} at $MNT/${UUID}"
 
 else
