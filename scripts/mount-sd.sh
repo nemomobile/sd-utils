@@ -72,6 +72,8 @@ else
             exit 0
         fi
         umount $DIR || umount -l $DIR
+        touch ${DIR} # Tell the tracker to reindex.
+        rmdir ${DIR} # Remove the temporary mount directory.
         systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} at ${DIR}"
     fi
 fi
