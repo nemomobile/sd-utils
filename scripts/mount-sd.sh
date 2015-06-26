@@ -8,6 +8,8 @@ DEF_GID=$(grep "^GID_MIN" /etc/login.defs |  tr -s " " | cut -d " " -f2)
 DEVICEUSER=$(getent passwd $DEF_UID | sed 's/:.*//')
 MNT=/media/sdcard
 MOUNT_OPTS="dirsync,noatime,users"
+# options: --discard=once --priority 10
+SWAP_OPTS="--discard --priority 10"
 ACTION=$1
 DEVNAME=$2
 
@@ -20,6 +22,22 @@ systemd-cat -t mount-sd /bin/echo "Called to ${ACTION} ${DEVNAME}"
 if [ "$ACTION" = "add" ]; then
 
     eval "$(/sbin/blkid -c /dev/null -o export /dev/$2)"
+
+    if [ -z "${TYPE}" ]; then
+        exit 1
+    fi
+
+    if [ "${TYPE}" = "swap" ]; then
+        SWAP=$(grep -w ${DEVNAME} /proc/swaps | cut -d \  -f 1)
+        if [ -n "$SWAP" ]; then
+            systemd-cat -t mount-sd /bin/echo "${DEVNAME} already used as swap space, ignoring"
+            exit 0
+        fi
+        systemd-cat -t mount-sd /bin/echo "${DEVNAME} seems to be swap space"
+        swapon $SWAP_OPTS ${DEVNAME}
+        systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} as swap space"
+        exit 0
+    fi
 
     if [ -z "${UUID}" ] || [ -z "${TYPE}" ]; then
         exit 1
@@ -72,6 +90,14 @@ else
         fi
         umount $DIR || umount -l $DIR
         systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} at ${DIR}"
+    else
+        SWAP=$(grep -w ${DEVNAME} /proc/swaps | cut -d \  -f 1)
+        if [ -z "$SWAP" ]; then
+            systemd-cat -t mount-sd /bin/echo "${DEVNAME} in not currently used as swap space, ignoring"
+            exit 0
+        fi
+        swapoff "${SWAP}"
+        systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} as swap space"
     fi
 fi
 
