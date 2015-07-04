@@ -43,7 +43,7 @@ if [ "$ACTION" = "add" ]; then
 	    MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8"
 	    ;;
 	# ext and btrfs are both able to handly TRIM. Add more to the list if needed.
-        ext4|btrfs)
+        ext4|btrfs|f2fs)
             MOUNT_OPTS+=",discard"
             ;;
     esac
