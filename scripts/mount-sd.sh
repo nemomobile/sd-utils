@@ -31,6 +31,16 @@ if [ "$ACTION" = "add" ]; then
         exit 0
     fi
 
+    case "${TYPE}" in
+	f2fs)
+            FSCK_OPTS="-a"
+            ;;
+        *)
+            FSCK_OPTS="-p"
+            ;;
+    esac
+    fsck $FSCK_OPTS ${DEVNAME}
+
     test -d $MNT/${UUID} || mkdir -p $MNT/${UUID}
     chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
 
