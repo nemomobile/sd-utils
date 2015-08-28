@@ -11,7 +11,13 @@ MOUNT_OPTS="dirsync,noatime,users"
 ACTION=$1
 DEVNAME=$2
 
-if [ -z "${ACTION}" ] || [ -z "${DEVNAME}" ]; then
+if [ -z "${ACTION}" ]; then
+    systemd-cat -t mount-sd /bin/echo "ERROR: Action needs to be defined."
+    exit 1
+fi
+
+if [ -z "${DEVNAME}" ]; then
+    systemd-cat -t mount-sd /bin/echo "ERROR: Device name needs to be defined."
     exit 1
 fi
 
@@ -21,8 +27,30 @@ if [ "$ACTION" = "add" ]; then
 
     eval "$(/sbin/blkid -c /dev/null -o export /dev/$2)"
 
-    if [ -z "${UUID}" ] || [ -z "${TYPE}" ]; then
+    if [ -z "${TYPE}" ]; then
+        systemd-cat -t mount-sd /bin/echo "ERROR: Filesystem type missing for ${DEVNAME}."
         exit 1
+    fi
+
+    if [ -z "${UUID}" ]; then
+        # In case device does not have UUID lets create one for it based on
+        # the card identification.
+        PKNAME=$(lsblk -n -o PKNAME ${DEVNAME})
+        if [ -e "/sys/block/${PKNAME}/device/cid" ]; then
+            CID=$(cat /sys/block/${PKNAME}/device/cid)
+            if [ -n "${CID}" ]; then
+                IDNAME=$(lsblk -n -o NAME ${DEVNAME})
+                UUID="${CID}-${IDNAME}"
+            fi
+        fi
+
+        if [ -z "${UUID}" ]; then
+            # Exit here as in the future there might be things like USB OTG disks or
+            # sdcards attached via adapter that might behave differently and needs special case
+            # in case such happens fail so we don't break anything.
+            systemd-cat -t mount-sd /bin/echo "ERROR: Could not find or generate UUID for device ${DEVNAME}."
+            exit 1
+        fi
     fi
 
     DIR=$(grep -w ${DEVNAME} /proc/mounts | cut -d \  -f 2)

@@ -10,6 +10,8 @@ Source0:    %{name}-%{version}.tar.gz
 BuildRequires:  systemd
 Requires:   systemd
 Requires:   tracker
+# Required for lsblk
+Requires:   util-linux
 
 %description
 %{summary}
