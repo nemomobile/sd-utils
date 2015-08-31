@@ -32,7 +32,7 @@ if [ "$ACTION" = "add" ]; then
     fi
 
     case "${TYPE}" in
-	f2fs)
+        f2fs)
             FSCK_OPTS="-a"
             ;;
         *)
@@ -45,14 +45,14 @@ if [ "$ACTION" = "add" ]; then
     chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
 
     case "${TYPE}" in
-	vfat|exfat)
-	    MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8,flush,discard"
-	    ;;
-	# NTFS support has not been tested but it's being left to please the ego of an engineer!
-	ntfs)
-	    MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8"
-	    ;;
-	# ext and btrfs are both able to handly TRIM. Add more to the list if needed.
+        vfat|exfat)
+            MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8,flush,discard"
+            ;;
+        # NTFS support has not been tested but it's being left to please the ego of an engineer!
+        ntfs)
+            MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8"
+            ;;
+        # ext and btrfs are both able to handly TRIM. Add more to the list if needed.
         ext4|btrfs|f2fs)
             MOUNT_OPTS+=",discard"
             ;;
