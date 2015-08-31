@@ -59,7 +59,35 @@ if [ "$ACTION" = "add" ]; then
         exit 0
     fi
 
-    # This hack is here to delay mounting the sdcard until tracker is ready
+    case "${TYPE}" in
+        f2fs)
+            FSCK_OPTS="-a"
+            ;;
+        *)
+            FSCK_OPTS="-p"
+            ;;
+    esac
+    fsck $FSCK_OPTS ${DEVNAME}
+
+    test -d $MNT/${UUID} || mkdir -p $MNT/${UUID}
+    chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
+
+    case "${TYPE}" in
+        vfat|exfat)
+            MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8,flush,discard"
+            ;;
+        # NTFS support has not been tested but it's being left to please the ego of an engineer!
+        ntfs)
+            MOUNT_OPTS+=",uid=$DEF_UID,gid=$DEF_GID,utf8"
+            ;;
+        # ext and btrfs are both able to handly TRIM. Add more to the list if needed.
+        ext4|btrfs|f2fs)
+            MOUNT_OPTS+=",discard"
+            ;;
+    esac
+    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
+
+    # This hack is here to delay indexing till the tracker has started.
     export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$DEF_UID/dbus/user_bus_socket
     count=1
     while true; do 
@@ -71,24 +99,8 @@ if [ "$ACTION" = "add" ]; then
         sleep $count ; 
         count=$(( count + count ))
     done
-
-    test -d $MNT/${UUID} || mkdir -p $MNT/${UUID}
-    chown $DEF_UID:$DEF_GID $MNT $MNT/${UUID}
-    touch $MNT/${UUID}
-
-    case "${TYPE}" in
-	vfat|exfat)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${UUID}
-	    ;;
-	# NTFS support has not been tested but it's being left to please the ego of an engineer!
-	ntfs)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8 || /bin/rmdir $MNT/${UUID}
-	    ;;
-	*)
-	    mount ${DEVNAME} $MNT/${UUID} -o $MOUNT_OPTS || /bin/rmdir $MNT/${UUID}
-	    ;;
-    esac
     test -d $MNT/${UUID} && touch $MNT/${UUID}
+
     systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} of type ${TYPE} at $MNT/${UUID}"
 
 else
@@ -99,6 +111,8 @@ else
             exit 0
         fi
         umount $DIR || umount -l $DIR
+        touch ${DIR} # Tell the tracker to reindex.
+        rmdir ${DIR} # Remove the temporary mount directory.
         systemd-cat -t mount-sd /bin/echo "Finished ${ACTION}ing ${DEVNAME} at ${DIR}"
     fi
 fi
