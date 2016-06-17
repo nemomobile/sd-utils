@@ -11,7 +11,13 @@ MOUNT_OPTS="dirsync,noatime,users"
 ACTION=$1
 DEVNAME=$2
 
-if [ -z "${ACTION}" ] || [ -z "${DEVNAME}" ]; then
+if [ -z "${ACTION}" ]; then
+    systemd-cat -t mount-sd /bin/echo "ERROR: Action needs to be defined."
+    exit 1
+fi
+
+if [ -z "${DEVNAME}" ]; then
+    systemd-cat -t mount-sd /bin/echo "ERROR: Device name needs to be defined."
     exit 1
 fi
 
@@ -21,8 +27,30 @@ if [ "$ACTION" = "add" ]; then
 
     eval "$(/sbin/blkid -c /dev/null -o export /dev/$2)"
 
-    if [ -z "${UUID}" ] || [ -z "${TYPE}" ]; then
+    if [ -z "${TYPE}" ]; then
+        systemd-cat -t mount-sd /bin/echo "ERROR: Filesystem type missing for ${DEVNAME}."
         exit 1
+    fi
+
+    if [ -z "${UUID}" ]; then
+        # In case device does not have UUID lets create one for it based on
+        # the card identification.
+        PKNAME=$(lsblk -n -o PKNAME ${DEVNAME})
+        if [ -e "/sys/block/${PKNAME}/device/cid" ]; then
+            CID=$(cat /sys/block/${PKNAME}/device/cid)
+            if [ -n "${CID}" ]; then
+                IDNAME=$(lsblk -n -o NAME ${DEVNAME})
+                UUID="${CID}-${IDNAME}"
+            fi
+        fi
+
+        if [ -z "${UUID}" ]; then
+            # Exit here as in the future there might be things like USB OTG disks or
+            # sdcards attached via adapter that might behave differently and needs special case
+            # in case such happens fail so we don't break anything.
+            systemd-cat -t mount-sd /bin/echo "ERROR: Could not find or generate UUID for device ${DEVNAME}."
+            exit 1
+        fi
     fi
 
     DIR=$(grep -w ${DEVNAME} /proc/mounts | cut -d \  -f 2)
@@ -50,7 +78,9 @@ if [ "$ACTION" = "add" ]; then
 
     case "${TYPE}" in
 	vfat|exfat)
-	    mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${UUID}
+	    mkdir -p /opt/alien/storage/sdcard1/
+	    #mount ${DEVNAME} $MNT/${UUID} -o uid=$DEF_UID,gid=$DEF_GID,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${UUID}
+	    mount ${DEVNAME} /opt/alien/storage/sdcard1/ -o uid=1015,gid=1015,fmask=002,dmask=002,$MOUNT_OPTS,utf8,flush,discard || /bin/rmdir $MNT/${UUID}
 	    ;;
 	# NTFS support has not been tested but it's being left to please the ego of an engineer!
 	ntfs)
