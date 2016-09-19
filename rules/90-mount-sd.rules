@@ -1,1 +1,1 @@
-SUBSYSTEM=="block", KERNEL=="mmcblk1*", ACTION=="add", MODE="0660", TAG+="systemd", ENV{SYSTEMD_WANTS}="mount-sd@%k.service", ENV{SYSTEMD_USER_WANTS}="tracker-miner-fs.service tracker-store.service"
+SUBSYSTEM=="block", KERNEL=="mmcblk1*", ACTION=="add", MODE="0660", TAG+="systemd", ENV{SYSTEMD_WANTS}="mount-sd@%k.service"
