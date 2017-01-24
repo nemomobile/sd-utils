@@ -1,6 +1,6 @@
 Name:       sd-utils
 Summary:    SailfishOS scripts to mount/umount external sdcard.
-Version:    0.3
+Version:    0.4
 Release:    1
 Group:      System/Base
 License:    MIT
@@ -9,7 +9,8 @@ URL:        https://github.com/nemomobile/sd-utils/
 Source0:    %{name}-%{version}.tar.gz
 BuildRequires:  systemd
 Requires:   systemd
-Requires:   tracker
+# Required for lsblk
+Requires:   util-linux
 
 %description
 %{summary}
